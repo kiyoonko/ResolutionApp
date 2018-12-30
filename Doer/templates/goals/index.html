@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>{% block title %} Resolution {% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  {% if not g.user %}
+    <h1> Register or Log in to get STARTED </h1>
+    <a class="action" href="{{ url_for("auth.register")}}">Register</a>
+    </br>
+    <a class="action" href="{{ url_for("auth.login")}}">Login</a>
+  {% elif not g.user.resolution %}
+    <h1> YOU NEED A 2019 RESOLUTION! </h1>
+    <a class="action" href="{{ url_for('goals.setResolution')}}">Set My Resolution</a>
+  {% else %}
+    <h1> Your 2019 Resolution: {{ g.user['resolution'] }} </h1>
+    <hr>
+    <a class="action" href="{{ url_for('goals.createGoal') }}">Add a goal!</a>
+    {% for goal in goals %}
+      {% if goal['author_id'] == g.user['id'] %}
+      <article class="post">
+        <header>
+          <div>
+            <input type="checkbox" id=goal value="{{goal['id']}}"><label for=goal>{{ goal['body'] }}</label>
+            <div class="about">Goal last updated: {{ goal['created'].strftime('%Y-%m-%d') }}  <sub><a href="{{ url_for('goals.updateGoal', id=goal['id']) }}">Edit</a></sub></div>
+            <ul>
+              {% for task in tasks %}
+                {% if task['goal_id'] == goal['id'] %}
+                  <div>
+                    <input type="checkbox" name="task" id=task value="{{ task['id'] }}"><label for=task>{{task['body']}}</label>
+                    <sub><a href="{{ url_for('goals.updateTask', id=task['id']) }}">Edit</a></sub>
+                  </div>
+                {% endif %}
+              {% endfor %}
+              <br>
+              <a href="{{ url_for('goals.createTask', id=goal['id']) }}">Create a Task</a>
+            </ul>
+          </div>
+        </header>
+      {% endif %}
+      </article>
+      {% if not loop.last %}
+        <hr>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+{% endblock %}
